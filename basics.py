@@ -22,54 +22,62 @@ class Instruction:
         self.fj = fj
         self.fk = fk
         self.stage = None
-        self.stall = False
+        self.wait = False
 
     def issue(self, fus, fu_status, reg_status):
         self.stage = Pipeline.ISSUE
 
         if reg_status[self.fi].fu is not None:
-            self.stall = True
+            self.wait = True
             return fu_status, reg_status
         
-        for idx, fu in enumerate(fus):
-            if fu.kind == MAPPING[self.op] and not fu_status[idx].busy:
+        for name, fu in fus.items():
+            if fu.kind == MAPPING[self.op] and not fu_status[name].busy:
 
-                fu_status[idx].busy = True
-                fu_status[idx].op = self.op
-                fu_status[idx].fi = self.fi
-                fu_status[idx].fj = self.fj
-                fu_status[idx].fk = self.fk
+                fu_status[name].busy = True
+                fu_status[name].op = self.op
+                fu_status[name].fi = self.fi
+                fu_status[name].fj = self.fj
+                fu_status[name].fk = self.fk
 
-                fu_status[idx].qj = reg_status[self.fj].fu
+                fu_status[name].qj = reg_status[self.fj].fu
 
                 if self.fk is not None:
-                    fu_status[idx].qk = reg_status[self.fk].fu
+                    fu_status[name].qk = reg_status[self.fk].fu
 
-                fu_status[idx].rj = fu_status[idx].qj is None
-                fu_status[idx].rk = fu_status[idx].qk is None
+                fu_status[name].rj = fu_status[name].qj is None
+                fu_status[name].rk = fu_status[name].qk is None
 
-                reg_status[self.fi].fu = f"{fus[idx].kind}{idx+1}"
+                reg_status[self.fi].fu = name
 
-                self.stall = False
+                self.wait = False
                 return fu_status, reg_status
         
-        self.stall = True
+        self.wait = True
 
-    def read(self, fu_status):
+    def read(self, fu_status, reg_status):
         self.stage = Pipeline.READ
-        for fu_s in fu_status:
-            if fu_s.fk == self.fk and fu_s.fj == self.fj and fu_s.fi == self.fi and fu_s.op == self.op:
-                if fu_s.rj and fu_s.rk:
-                    fu_s.rj = False
-                    fu_s.rk = False
-                    self.stall = False
-                    return fu_status
-        self.stall = True
+        fu_name = reg_status[self.fi].fu
+
+        if fu_status[fu_name].rj and fu_status[fu_name].rk:
+            fu_status[fu_name].rj = False
+            fu_status[fu_name].rk = False
+            self.wait = False
+            return fu_status
+
+        self.wait = True
         return fu_status
 
-    def complete(self, elapsed_time):
+    def complete(self, fus, reg_status, instru_status, current_cycle):
         self.stage = Pipeline.COMPLETE
-        return elapsed_time+1
+        fu_name = reg_status[self.fi].fu
+        if fus[fu_name].latency > current_cycle-instru_status.read:
+            self.wait = True
+        else:
+            self.wait = False
+        instru_status.complete = current_cycle
+        return instru_status
+        
 
 
 class Load(Instruction):

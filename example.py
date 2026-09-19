@@ -38,7 +38,7 @@ def load_instructions():
 def load_configurations():
     lines = CONFIGURATIONS.splitlines()
 
-    fus = []
+    fus = {}
     for line in lines:
         components = line.split(" ")
         kind = components[0]
@@ -47,8 +47,8 @@ def load_configurations():
 
         fu = FunctionalUnit(kind, lat)
 
-        for _ in range(num):
-            fus.append(fu)
+        for idx in range(num):
+            fus[f"{kind}{idx+1}"] = fu
     
     return fus
 
@@ -69,41 +69,41 @@ if __name__ == "__main__":
 
         instru_status.append(InstructionStatus())
 
-    fu_status = []
-    for fu in fus:
-        fu_status.append(FunctionalUnitStatus())
+    fu_status = {}
+    for name, fu in fus.items():
+        fu_status[name]=FunctionalUnitStatus()
 
     ######### Clock 0 #############
 
     n_inst = len(instru)
-    clock = 0
+    clock = 1
 
-    while clock<n_inst:
+    while clock<n_inst+5:
         print(f"######## CLOCK = {clock} ########\n")
 
         print(InstructionStatus.__name__)
         for idx, status in enumerate(instru_status):
-            if idx <= clock:
+            if idx < clock:
                 # Se a instrução ainda não foi iniciada ou está na etapa de issue e em stall, executar etapa issue
-                if instru[idx].stage is None or (instru[idx].stage is Pipeline.ISSUE and instru[idx].stall):
+                if instru[idx].stage is None or (instru[idx].stage is Pipeline.ISSUE and instru[idx].wait):
                     fu_status, reg_status = instru[idx].issue(fus, fu_status, register_status)
                     instru_status[idx].issue = clock
                 
                 # Se a instrução está na etapa de issue e não está em stall, executar leitura de operandos
-                elif (instru[idx].stage is Pipeline.ISSUE and not instru[idx].stall) or (instru[idx].stage is Pipeline.READ and instru[idx].stall):
-                    fu_status = instru[idx].read(fu_status)
+                elif (instru[idx].stage is Pipeline.ISSUE and not instru[idx].wait) or (instru[idx].stage is Pipeline.READ and instru[idx].wait):
+                    fu_status = instru[idx].read(fu_status, register_status)
                     instru_status[idx].read = clock
 
-                elif (instru[idx].stage is Pipeline.READ and not instru[idx].stall) or instru[idx].stage is Pipeline.COMPLETE:
-                    pass
+                elif (instru[idx].stage is Pipeline.READ and not instru[idx].wait) or (instru[idx].stage is Pipeline.COMPLETE and instru[idx].wait):
+                    instru_status[idx] = instru[idx].complete(fus, reg_status, instru_status[idx], clock)
 
 
         for idx, status in enumerate(instru_status):
             print(f"I{idx+1}", status.__dict__)
 
         print("\n", FunctionalUnitStatus.__name__)
-        for idx, status in enumerate(fu_status):
-            print(f"{fus[idx].kind}{idx+1}", status.__dict__)
+        for name, status in fu_status.items():
+            print(name, status.__dict__)
 
         print("\n", RegisterStatus.__name__)
         for reg, status in register_status.items():
