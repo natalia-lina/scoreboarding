@@ -77,7 +77,36 @@ class Instruction:
             self.wait = False
         instru_status.complete = current_cycle
         return instru_status
+    
+    def write(self, reg_status, fu_status):
+        self.stage = Pipeline.WRITE
+        fu_name = reg_status[self.fi].fu
+        for name, fu_s in fu_status.items():
+            if fu_name == name:
+                continue
+            if fu_s.busy:
+                if fu_s.fj == fu_status[fu_name].fi and fu_s.rj:
+                    self.wait = True
+                    return reg_status, fu_status
+
+                if fu_s.fk == fu_status[fu_name].fi and fu_s.rk:
+                    self.wait = True
+                    return reg_status, fu_status
         
+        for name, fu_s in fu_status.items():
+            if name == fu_name:
+                continue
+            if fu_s.qj == fu_name:
+                fu_s.qj = None
+                fu_s.rj = True
+            if fu_s.qk == fu_name:
+                fu_s.qk = None
+                fu_s.rk = True
+
+            reg_status[self.fi].fu = None
+            fu_status[fu_name] = FunctionalUnitStatus()
+        self.wait = False
+        return reg_status, fu_status
 
 
 class Load(Instruction):
