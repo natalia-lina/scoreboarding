@@ -8,5 +8,3 @@ INSTRUCTION_FU_MAP = {
     "fmul": "mul",
     "fdiv": "div"
 }
-
-

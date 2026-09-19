@@ -1,6 +1,6 @@
 from basics import (
     Instruction, Load, Store, FunctionalUnit,
-    RegisterStatus, FunctionalUnitStatus, InstructionStatus
+    RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline
 )
 
 INSTRUCTIONS = """fld f1, 0(x1)
@@ -67,16 +67,49 @@ if __name__ == "__main__":
         if ins.fk is not None:
             register_status[ins.fk] = RegisterStatus()
 
-        instru_status.append(InstructionStatus)
+        instru_status.append(InstructionStatus())
 
     fu_status = []
-    for fu in config:
+    for fu in fus:
         fu_status.append(FunctionalUnitStatus())
 
-    print(instru_status)
-    print(register_status)
-    print(fu_status)
-
     ######### Clock 0 #############
+
+    n_inst = len(instru)
+    clock = 0
+
+    while clock<n_inst:
+        print(f"######## CLOCK = {clock} ########\n")
+
+        print(InstructionStatus.__name__)
+        for idx, status in enumerate(instru_status):
+            if idx <= clock:
+                # Se a instrução ainda não foi iniciada ou está na etapa de issue e em stall, executar etapa issue
+                if instru[idx].stage is None or (instru[idx].stage is Pipeline.ISSUE and instru[idx].stall):
+                    fu_status, reg_status = instru[idx].issue(fus, fu_status, register_status)
+                    instru_status[idx].issue = clock
+                
+                # Se a instrução está na etapa de issue e não está em stall, executar leitura de operandos
+                elif (instru[idx].stage is Pipeline.ISSUE and not instru[idx].stall) or (instru[idx].stage is Pipeline.READ and instru[idx].stall):
+                    fu_status = instru[idx].read(fu_status)
+                    instru_status[idx].read = clock
+
+                elif (instru[idx].stage is Pipeline.READ and not instru[idx].stall) or instru[idx].stage is Pipeline.COMPLETE:
+                    pass
+
+
+        for idx, status in enumerate(instru_status):
+            print(f"I{idx+1}", status.__dict__)
+
+        print("\n", FunctionalUnitStatus.__name__)
+        for idx, status in enumerate(fu_status):
+            print(f"{fus[idx].kind}{idx+1}", status.__dict__)
+
+        print("\n", RegisterStatus.__name__)
+        for reg, status in register_status.items():
+            print(reg, status.fu)
+        
+        clock+=1
+        print("\n")
 
 

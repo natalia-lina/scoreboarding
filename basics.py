@@ -22,10 +22,13 @@ class Instruction:
         self.fj = fj
         self.fk = fk
         self.stage = None
+        self.stall = False
 
     def issue(self, fus, fu_status, reg_status):
+        self.stage = Pipeline.ISSUE
 
-        if reg_status[self.fi] is not None:
+        if reg_status[self.fi].fu is not None:
+            self.stall = True
             return fu_status, reg_status
         
         for idx, fu in enumerate(fus):
@@ -37,24 +40,36 @@ class Instruction:
                 fu_status[idx].fj = self.fj
                 fu_status[idx].fk = self.fk
 
-                fu_status[idx].qj = reg_status[self.fj]
-                fu_status[idx].qk = reg_status[self.fk]
+                fu_status[idx].qj = reg_status[self.fj].fu
+
+                if self.fk is not None:
+                    fu_status[idx].qk = reg_status[self.fk].fu
 
                 fu_status[idx].rj = fu_status[idx].qj is None
                 fu_status[idx].rk = fu_status[idx].qk is None
 
-                reg_status[self.fi] = idx
+                reg_status[self.fi].fu = f"{fus[idx].kind}{idx+1}"
 
+                self.stall = False
                 return fu_status, reg_status
+        
+        self.stall = True
 
     def read(self, fu_status):
+        self.stage = Pipeline.READ
         for fu_s in fu_status:
             if fu_s.fk == self.fk and fu_s.fj == self.fj and fu_s.fi == self.fi and fu_s.op == self.op:
                 if fu_s.rj and fu_s.rk:
                     fu_s.rj = False
                     fu_s.rk = False
+                    self.stall = False
                     return fu_status
+        self.stall = True
         return fu_status
+
+    def complete(self, elapsed_time):
+        self.stage = Pipeline.COMPLETE
+        return elapsed_time+1
 
 
 class Load(Instruction):
