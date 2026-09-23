@@ -3,7 +3,12 @@ from basics import (
     RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline
 )
 
-from utils import load_instructions, load_configurations
+from utils import (
+    load_instructions,
+    load_configurations,
+    instantiate_registers_instructions_status,
+    instantitate_functional_unit_status
+)
 
 INSTRUCTIONS = """fld f1, 0(x1)
 fsd f5, 0(x1)
@@ -22,21 +27,8 @@ if __name__ == "__main__":
     fus=load_configurations(CONFIGURATIONS)
     instru=load_instructions(INSTRUCTIONS)
 
-    register_status = {}
-    instru_status = []
-    for ins in instru:
-        if ins.fi is not None:
-            register_status[ins.fi] = RegisterStatus()
-        if ins.fj is not None:
-            register_status[ins.fj] = RegisterStatus()
-        if ins.fk is not None:
-            register_status[ins.fk] = RegisterStatus()
-
-        instru_status.append(InstructionStatus())
-
-    fu_status = {}
-    for name, fu in fus.items():
-        fu_status[name]=FunctionalUnitStatus()
+    register_status, instru_status = instantiate_registers_instructions_status(instru)
+    fu_status = instantitate_functional_unit_status()
 
     ######### Clock 0 #############
 

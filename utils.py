@@ -40,3 +40,25 @@ def load_configurations(configurations_input: str) -> dict:
             functional_units[f"{kind}{idx+1}"] = fu
     
     return functional_units
+
+def instantiate_registers_instructions_status(instructions: list) -> tuple:
+    register_status = {}
+    instruction_status = []
+
+    for instru in instructions:
+        if instru.fi is not None:
+            register_status[instru.fi] = RegisterStatus()
+        if instru.fj is not None:
+            register_status[instru.fj] = RegisterStatus()
+        if instru.fk is not None:
+            register_status[instru.fk] = RegisterStatus()
+        
+        instruction_status.append(InstructionStatus())
+
+    return register_status, instruction_status
+
+def instantitate_functional_unit_status(functional_units: dict) -> dict:
+    function_unit_status = {}
+    for name in functional_units.keys():
+        function_unit_status[name] = FunctionalUnitStatus()
+    return function_unit_status
