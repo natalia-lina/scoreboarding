@@ -10,7 +10,7 @@ from utils import (
     instantitate_functional_unit_status
 )
 from system_state import SystemState
-from stages import issue
+from stages import issue, read
 
 INSTRUCTIONS = """fld f1, 0(x1)
 fsd f5, 0(x1)
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     clock_cycle = 0
     
-    while clock_cycle < 1:
+    while clock_cycle < 2:
         future_state = current_state
         future_state.clock_cycle = clock_cycle+1
 
@@ -54,8 +54,12 @@ if __name__ == "__main__":
                 )
                 break
             if instru_stage.stage is Pipeline.ISSUE or (instru_stage.stage is Pipeline.READ and instru_stage.wait):
-                # Run read
-                pass
+                future_state = read(
+                    current_state,
+                    future_state,
+                    instru[idx],
+                    idx
+                )
             if instru_stage.stage is Pipeline.READ or (instru_stage.stage is Pipeline.COMPLETE and instru_stage.wait):
                 # Run complete
                 pass
@@ -64,11 +68,15 @@ if __name__ == "__main__":
                 pass
 
         clock_cycle += 1
-    current_state = future_state
+        current_state = future_state
 
-    current_state.show_fu_status()
-    current_state.show_reg_status()
-    current_state.show_instru_stages()
+        print(clock_cycle, "\n")
+        current_state.show_fu_status()
+        print("\n")
+        current_state.show_reg_status()
+        print("\n")
+        current_state.show_instru_stages()
+        print("\n")
 
     
         

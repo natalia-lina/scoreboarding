@@ -53,3 +53,21 @@ def issue(
 
     future_state.instru_stages[idx].wait = True
     return future_state
+
+def read(
+    current_state: SystemState,
+    future_state: SystemState,
+    instruction: Instruction,
+    idx: int # instruction index
+):
+    future_state.instru_stages[idx].stage = Pipeline.READ
+    fu_name = current_state.register_status[instruction.fi].fu
+
+    if current_state.fu_status[fu_name].rj and current_state.fu_status[fu_name].rk:
+        future_state.fu_status[fu_name].rj = False
+        future_state.fu_status[fu_name].rk = False
+        future_state.instru_stages[idx].wait = False
+        return future_state
+    
+    future_state.instru_stages[idx].wait = True
+    return future_state
