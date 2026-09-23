@@ -10,7 +10,7 @@ from utils import (
     instantitate_functional_unit_status
 )
 from system_state import SystemState
-from stages import issue, read
+from stages import issue, read, execution
 
 INSTRUCTIONS = """fld f1, 0(x1)
 fsd f5, 0(x1)
@@ -33,12 +33,12 @@ if __name__ == "__main__":
     fu_status = instantitate_functional_unit_status(fus)
 
     current_state = SystemState(
-        fu_status, register_status, instru_stage, clock_cycle=0
+        fu_status, register_status, instru_status, instru_stage, clock_cycle=0
     )
 
     clock_cycle = 0
     
-    while clock_cycle < 2:
+    while clock_cycle < 3:
         future_state = current_state
         future_state.clock_cycle = clock_cycle+1
 
@@ -53,21 +53,21 @@ if __name__ == "__main__":
                     idx
                 )
                 break
-            if instru_stage.stage is Pipeline.ISSUE or (instru_stage.stage is Pipeline.READ and instru_stage.wait):
+            elif instru_stage.stage is Pipeline.ISSUE or (instru_stage.stage is Pipeline.READ and instru_stage.wait):
                 future_state = read(
                     current_state,
                     future_state,
                     instru[idx],
                     idx
                 )
-            if instru_stage.stage is Pipeline.READ or (instru_stage.stage is Pipeline.EXECUTION and instru_stage.wait):
-                # Run complete
-                pass
-            if instru_stage.stage is Pipeline.EXECUTION or (instru_stage.stage is Pipeline.WRITE and instru_stage.wait):
+            elif instru_stage.stage is Pipeline.READ or (instru_stage.stage is Pipeline.EXECUTION and instru_stage.wait):
+                future_state = execution(current_state, future_state, instru[idx], fus, idx)
+            elif instru_stage.stage is Pipeline.EXECUTION or (instru_stage.stage is Pipeline.WRITE and instru_stage.wait):
                 # Run write
                 pass
 
         clock_cycle += 1
+        future_state.update_instruction_status()
         current_state = future_state
 
         print(clock_cycle, "\n")
@@ -76,6 +76,8 @@ if __name__ == "__main__":
         current_state.show_reg_status()
         print("\n")
         current_state.show_instru_stages()
+        print("\n")
+        current_state.show_instru_status()
         print("\n")
 
     

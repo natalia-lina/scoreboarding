@@ -71,3 +71,20 @@ def read(
     
     future_state.instru_stages[idx].wait = True
     return future_state
+
+def execution(
+    current_state: SystemState,
+    future_state: SystemState,
+    instruction: Instruction,
+    functional_units: dict,
+    idx
+):
+    future_state.instru_stages[idx].stage = Pipeline.EXECUTION
+    fu_name = current_state.register_status[instruction.fi].fu
+    if current_state.instru_status[idx].read is None:
+        future_state.instru_stages[idx].wait = True
+    elif functional_units[fu_name].latency > current_state.clock_cycle-current_state.instru_status[idx].read:
+        future_state.instru_stages[idx].wait = True
+    else:
+        future_state.instru_stages[idx].wait = False
+    return future_state
