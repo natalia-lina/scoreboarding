@@ -1,6 +1,6 @@
 from basics import (
     Instruction, Load, Store, FunctionalUnit,
-    RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline
+    RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline, InstructionStage
 )
 
 def load_instructions(instructions_input: str) -> list[Instruction]:
@@ -44,6 +44,7 @@ def load_configurations(configurations_input: str) -> dict:
 def instantiate_registers_instructions_status(instructions: list) -> tuple:
     register_status = {}
     instruction_status = []
+    instruction_stage = []
 
     for instru in instructions:
         if instru.fi is not None:
@@ -54,8 +55,9 @@ def instantiate_registers_instructions_status(instructions: list) -> tuple:
             register_status[instru.fk] = RegisterStatus()
         
         instruction_status.append(InstructionStatus())
+        instruction_stage.append(InstructionStage())
 
-    return register_status, instruction_status
+    return register_status, instruction_status, instruction_stage
 
 def instantitate_functional_unit_status(functional_units: dict) -> dict:
     function_unit_status = {}
