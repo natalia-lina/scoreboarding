@@ -1,0 +1,42 @@
+from basics import (
+    Instruction, Load, Store, FunctionalUnit,
+    RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline
+)
+
+def load_instructions(instructions_input: str) -> list[Instruction]:
+    lines = instructions_input.splitlines()
+
+    instructions = []
+
+    for line in lines:
+        components = line.replace(",", "").split(" ")
+        op = components[0]
+
+        if op == "fld":
+            instructions.append(Load(*components[1:]))
+        
+        elif op == "fsd":
+            instructions.append(Store(*components[1:]))
+        
+        else:
+            instructions.append(Instruction(*components))
+
+    return instructions
+
+
+def load_configurations(configurations_input: str) -> dict:
+    lines = configurations_input.splitlines()
+
+    functional_units = {}
+    for line in lines:
+        components = line.split(" ")
+        kind = components[0]
+        num = int(components[1])
+        lat = int(components[2])
+
+        fu = FunctionalUnit(kind, lat)
+
+        for idx in range(num):
+            functional_units[f"{kind}{idx+1}"] = fu
+    
+    return functional_units

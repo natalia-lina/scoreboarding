@@ -3,6 +3,8 @@ from basics import (
     RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline
 )
 
+from utils import load_instructions, load_configurations
+
 INSTRUCTIONS = """fld f1, 0(x1)
 fsd f5, 0(x1)
 fdiv f2, f4, f5
@@ -14,48 +16,11 @@ add 1 2
 div 1 10
 """
 
-def load_instructions():
-    lines = INSTRUCTIONS.splitlines()
-
-    instant = []
-
-    for line in lines:
-        components = line.replace(",", "").split(" ")
-        op = components[0]
-
-        if op == "fld":
-            instant.append(Load(*components[1:]))
-        
-        elif op == "fsd":
-            instant.append(Store(*components[1:]))
-        
-        else:
-            instant.append(Instruction(*components))
-
-    return instant
-
-
-def load_configurations():
-    lines = CONFIGURATIONS.splitlines()
-
-    fus = {}
-    for line in lines:
-        components = line.split(" ")
-        kind = components[0]
-        num = int(components[1])
-        lat = int(components[2])
-
-        fu = FunctionalUnit(kind, lat)
-
-        for idx in range(num):
-            fus[f"{kind}{idx+1}"] = fu
-    
-    return fus
 
 if __name__ == "__main__":
 
-    fus=load_configurations()
-    instru=load_instructions()
+    fus=load_configurations(CONFIGURATIONS)
+    instru=load_instructions(INSTRUCTIONS)
 
     register_status = {}
     instru_status = []
