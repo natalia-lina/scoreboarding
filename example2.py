@@ -60,10 +60,10 @@ if __name__ == "__main__":
                     instru[idx],
                     idx
                 )
-            if instru_stage.stage is Pipeline.READ or (instru_stage.stage is Pipeline.COMPLETE and instru_stage.wait):
+            if instru_stage.stage is Pipeline.READ or (instru_stage.stage is Pipeline.EXECUTION and instru_stage.wait):
                 # Run complete
                 pass
-            if instru_stage.stage is Pipeline.COMPLETE or (instru_stage.stage is Pipeline.WRITE and instru_stage.wait):
+            if instru_stage.stage is Pipeline.EXECUTION or (instru_stage.stage is Pipeline.WRITE and instru_stage.wait):
                 # Run write
                 pass
 

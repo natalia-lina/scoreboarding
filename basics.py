@@ -9,11 +9,33 @@ MAPPING = {
     "fdiv": "div"
 }
 
+
+class FunctionalUnitStatus:
+    def __init__(self):
+
+        self.busy = False
+        self.op = None
+        self.fi = None
+        self.fj = None
+        self.fk = None
+        self.qj = None
+        self.qk = None
+        self.rj = None
+        self.rk = None
+
 class FunctionalUnit:
     def __init__(self, kind, latency):
         self.kind = kind
         self.latency = latency
+        self.status = FunctionalUnitStatus()
 
+
+class InstructionStatus:
+    def __init__(self):
+        self.issue = None
+        self.read = None
+        self.execution = None
+        self.write = None
 
 class Instruction:
     def __init__(self, op, fi, fj, fk):
@@ -23,6 +45,7 @@ class Instruction:
         self.fk = fk
         self.stage = None
         self.wait = False
+        self.status = InstructionStatus()
 
     def issue(self, fus, fu_status, reg_status):
         self.stage = Pipeline.ISSUE
@@ -69,7 +92,7 @@ class Instruction:
         return fu_status
 
     def complete(self, fus, reg_status, instru_status, current_cycle):
-        self.stage = Pipeline.COMPLETE
+        self.stage = Pipeline.EXECUTION
         fu_name = reg_status[self.fi].fu
         if fus[fu_name].latency > current_cycle-instru_status.read:
             self.wait = True
@@ -122,32 +145,22 @@ class Store(Instruction):
 class Pipeline(Enum):
     ISSUE = 1
     READ = 2
-    COMPLETE = 3
+    EXECUTION = 3
     WRITE = 4
 
 
-class InstructionStatus:
+class InstructionStage:
     def __init__(self):
-        self.issue = None
-        self.read = None
-        self.complete = None
-        self.write = None
-
-
-class FunctionalUnitStatus:
-    def __init__(self):
-
-        self.busy = False
-        self.op = None
-        self.fi = None
-        self.fj = None
-        self.fk = None
-        self.qj = None
-        self.qk = None
-        self.rj = None
-        self.rk = None
-
+        self.stage = None
+        self.wait = False
 
 class RegisterStatus:
     def __init__(self):
         self.fu = None
+
+
+class Scoreboarding:
+    def __init__(self, instructions, functional_units, registers):
+        self.instructions = instructions
+        self.functional_units = functional_units
+        self.registers = registers
