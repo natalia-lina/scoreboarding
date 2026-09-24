@@ -10,7 +10,7 @@ from utils import (
     instantitate_functional_unit_status
 )
 from system_state import SystemState
-from stages import issue, read, execution
+from stages import issue, read, execution, write
 
 INSTRUCTIONS = """fld f1, 0(x1)
 fsd f5, 0(x1)
@@ -37,11 +37,11 @@ if __name__ == "__main__":
     )
 
     clock_cycle = 0
-    
-    while clock_cycle < 3:
-        future_state = current_state
+    future_state = current_state
+    while clock_cycle<19:
+        
         future_state.clock_cycle = clock_cycle+1
-
+        done_count=0
         for idx, instru_stage in enumerate(current_state.instru_stages):
             print(idx, clock_cycle)
             if instru_stage.stage is None or (instru_stage.stage is Pipeline.ISSUE and instru_stage.wait):
@@ -63,14 +63,18 @@ if __name__ == "__main__":
             elif instru_stage.stage is Pipeline.READ or (instru_stage.stage is Pipeline.EXECUTION and instru_stage.wait):
                 future_state = execution(current_state, future_state, instru[idx], fus, idx)
             elif instru_stage.stage is Pipeline.EXECUTION or (instru_stage.stage is Pipeline.WRITE and instru_stage.wait):
-                # Run write
-                pass
+                future_state = write(current_state, future_state, instru[idx], idx)
+            elif instru_stage.stage is Pipeline.WRITE and not instru_stage.wait:
+                future_state.instru_stages[idx].stage = Pipeline.DONE
+
+            
 
         clock_cycle += 1
-        future_state.update_instruction_status()
         current_state = future_state
 
-        print(clock_cycle, "\n")
+        current_state.update_instruction_status()
+
+        print("\n#############",clock_cycle, "#############\n")
         current_state.show_fu_status()
         print("\n")
         current_state.show_reg_status()
@@ -79,6 +83,7 @@ if __name__ == "__main__":
         print("\n")
         current_state.show_instru_status()
         print("\n")
+
 
     
         
