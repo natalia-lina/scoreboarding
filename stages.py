@@ -69,7 +69,6 @@ def read(
         return future_state
     
     future_state.instru_stages[idx].wait = True
-    print("$$$$$$$$", current_state.clock_cycle, fu_name)
         
         
     return future_state
@@ -87,7 +86,7 @@ def execution(
     if current_state.instru_status[idx].read is None:
         future_state.instru_stages[idx].wait = True
         return future_state
-    elif functional_units[fu_name].latency > current_state.clock_cycle-current_state.instru_status[idx].read:
+    elif functional_units[fu_name].latency-1 > current_state.clock_cycle-current_state.instru_status[idx].read:
         future_state.instru_stages[idx].wait = True
         return future_state
     
@@ -97,7 +96,8 @@ def execution(
 def write(current_state, future_state, instruction, idx):
     future_state.instru_stages[idx].stage = Pipeline.WRITE
     fu_name = current_state.register_status[instruction.fi].fu
-
+    # if fu_name == "int2":
+    #     print("1 #########", current_state.show_fu_status())
     for name, status in current_state.fu_status.items():
         if name != fu_name and status.busy:
             if (status.fj == current_state.fu_status[fu_name].fi and status.rj):
@@ -106,7 +106,9 @@ def write(current_state, future_state, instruction, idx):
             if (status.fk == current_state.fu_status[fu_name].fi and status.rk):
                 future_state.instru_stages[idx].wait = True
                 return future_state
-
+    # if fu_name == "int2":
+    #     print("2 #########")
+    #     current_state.show_fu_status()
     
     for name, status in current_state.fu_status.items():
 
@@ -117,10 +119,17 @@ def write(current_state, future_state, instruction, idx):
         if status.qk == fu_name:
             future_state.fu_status[name].qk = None
             future_state.fu_status[name].rk = True
+    # if fu_name == "int2":
+    #     print("3 #########")
+    #     current_state.show_fu_status()
+    #     current_state.show_register_status()
+    #     future_state.show_register_status()
 
-    if current_state.register_status[current_state.fu_status[fu_name].fi] == fu_name:
-        print(idx,current_state.fu_status[fu_name].fi)
-        future_state.register_status[current_state.fu_status[fu_name].fi] = None
+    if current_state.register_status[current_state.fu_status[fu_name].fi].fu == fu_name:
+        # print(idx,current_state.fu_status[fu_name].fi)
+        future_state.register_status[current_state.fu_status[fu_name].fi].fu = None
+        current_state.show_register_status()
+
 
 
     future_state.fu_status[fu_name] = FunctionalUnitStatus()
