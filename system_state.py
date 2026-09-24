@@ -24,7 +24,7 @@ class SystemState:
     
     def update_instruction_status(self):
         for idx, stage in enumerate(self.instru_stages):
-            if stage.stage is None:
+            if stage.stage is None or stage.stage is Pipeline.DONE:
                 continue
             if stage.stage is Pipeline.ISSUE:
                 self.instru_status[idx].issue = self.clock_cycle
