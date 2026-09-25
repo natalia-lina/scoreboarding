@@ -16,7 +16,7 @@ def load_instructions(instructions_input: str) -> list[Instruction]:
             instructions.append(Load(*components[1:]))
         
         elif op == "fsd":
-            instructions.append(Store(*components[1:]))
+            instructions.append(Store(*reversed(components[1:])))
         
         else:
             instructions.append(Instruction(*components))
