@@ -9,6 +9,8 @@ from utils import (
     instantiate_registers_instructions_status,
     instantitate_functional_unit_status
 )
+from system_state import SystemState
+from stages import issue, read, execution, write
 
 INSTRUCTIONS = """fld f1, 0(x1)
 fsd f5, 0(x1)
@@ -27,61 +29,65 @@ if __name__ == "__main__":
     fus=load_configurations(CONFIGURATIONS)
     instru=load_instructions(INSTRUCTIONS)
 
-    register_status, instru_status = instantiate_registers_instructions_status(instru)
-    fu_status = instantitate_functional_unit_status()
+    register_status, instru_status, instru_stages = instantiate_registers_instructions_status(instru)
+    fu_status = instantitate_functional_unit_status(fus)
 
-    ######### Clock 0 #############
+    current_state = SystemState(instru, fus)
+    future_state = current_state.copy()
 
-    n_inst = len(instru)
-    clock = 1
+    clock_cycle = 0
+    future_state.clock_cycle = 1
 
-    prev_fu_status, prev_register_status = fu_status, register_status
+    done_count = 0
+    while done_count<len(instru):
+        done_count = 0
+        for idx, instru_stage in enumerate(current_state.instruction_stages):
+            if instru_stage.stage is None or (instru_stage.stage is Pipeline.ISSUE and instru_stage.wait):
+                future_state = issue(
+                    current_state,
+                    future_state,
+                    fus,
+                    instru[idx],
+                    idx
+                )
+                break
+            elif instru_stage.stage is Pipeline.ISSUE or (instru_stage.stage is Pipeline.READ and instru_stage.wait):
+                future_state = read(
+                    current_state,
+                    future_state,
+                    instru[idx],
+                    idx
+                )
+            elif instru_stage.stage is Pipeline.READ or (instru_stage.stage is Pipeline.EXECUTION and instru_stage.wait):
+                future_state = execution(current_state, future_state, instru[idx], fus, idx)
+            elif instru_stage.stage is Pipeline.EXECUTION or (instru_stage.stage is Pipeline.WRITE and instru_stage.wait):
+                future_state = write(current_state, future_state, instru[idx], idx)
+            elif instru_stage.stage is Pipeline.WRITE and not instru_stage.wait:
+                future_state.instruction_stages[idx].stage = Pipeline.DONE
 
-    while clock<6:
-        print(f"######## CLOCK = {clock} ########\n")
+        clock_cycle += 1
 
-        print(InstructionStatus.__name__)
-        for idx, status in enumerate(instru_status):
-            if idx < clock:
-                # Se a instrução ainda não foi iniciada ou está na etapa de issue e em stall, executar etapa issue
-                if instru[idx].stage is None or (instru[idx].stage is Pipeline.ISSUE and instru[idx].wait):
-                    fu_status, register_status = instru[idx].issue(fus, prev_fu_status, prev_register_status)
-                    instru_status[idx].issue = clock
-                
-                # Se a instrução está na etapa de issue e não está em stall, executar leitura de operandos
-                elif (instru[idx].stage is Pipeline.ISSUE and not instru[idx].wait) or (instru[idx].stage is Pipeline.READ and instru[idx].wait):
-                    fu_status = instru[idx].read(prev_fu_status, prev_register_status)
-                    instru_status[idx].read = clock
 
-                # Se a instrução está na etapa de read e não está em stall ou está na etapa complete e ainda não "esperou" a latencia
-                elif (instru[idx].stage is Pipeline.READ and not instru[idx].wait) or (instru[idx].stage is Pipeline.COMPLETE and instru[idx].wait):
-                    instru_status[idx] = instru[idx].complete(fus, prev_register_status, instru_status[idx], clock)
-                
-                elif (instru[idx].stage is Pipeline.COMPLETE and not instru[idx].wait) or (instru[idx].stage is Pipeline.WRITE and instru[idx].wait):
-                    register_status, fu_status = instru[idx].write(prev_register_status, prev_fu_status)
-                    instru_status[idx].write = clock
+        future_state.update_instruction_status()
+        current_state = future_state.copy()
+        future_state.clock_cycle+= 1
 
-        for idx, status in enumerate(instru_status):
-            print(f"I{idx+1}", status.__dict__)
 
-        print("\n", FunctionalUnitStatus.__name__)
-        for name, status in fu_status.items():
-            print(name, status.__dict__)
-
-        print("\n", FunctionalUnitStatus.__name__)
-        for name, status in prev_fu_status.items():
-            print(name, status.__dict__)
-
-        print("\n", RegisterStatus.__name__)
-        for reg, status in register_status.items():
-            print(reg, status.fu)
-
-        print("\n", RegisterStatus.__name__)
-        for reg, status in prev_register_status.items():
-            print(reg, status.fu)
-        
-        clock+=1
-        prev_fu_status, prev_register_status = fu_status, prev_register_status
+        print("\n#############",clock_cycle, "#############\n")
+        current_state.show_fu_status()
         print("\n")
+        current_state.show_register_status()
+        print("\n")
+        current_state.show_instru_stages()
+        print("\n")
+        current_state.show_instru_status()
+        print("\n##########################\n")
+
+        for stage in current_state.instruction_stages:
+            if stage.stage is Pipeline.DONE:
+                done_count+=1
+
+
+
 
 
