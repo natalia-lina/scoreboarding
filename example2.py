@@ -38,7 +38,9 @@ if __name__ == "__main__":
     clock_cycle = 0
     future_state.clock_cycle = 1
 
-    while clock_cycle<10:
+    done_count = 0
+    while done_count<len(instru):
+        done_count = 0
         for idx, instru_stage in enumerate(current_state.instruction_stages):
             if instru_stage.stage is None or (instru_stage.stage is Pipeline.ISSUE and instru_stage.wait):
                 future_state = issue(
@@ -80,6 +82,12 @@ if __name__ == "__main__":
         print("\n")
         current_state.show_instru_status()
         print("\n##########################\n")
+
+        for stage in current_state.instruction_stages:
+            if stage.stage is Pipeline.DONE:
+                done_count+=1
+
+
 
 
 
