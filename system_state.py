@@ -3,40 +3,76 @@ from basics import (
     RegisterStatus,
     InstructionStage,
     InstructionStatus,
-    Pipeline
+    Pipeline,
+    Instruction
 )
 
 
 class SystemState:
     def __init__(
         self,
-        fu_status: dict,
-        reg_status: dict,
-        instru_status: list,
-        instru_stages: list,
-        clock_cycle: int
+        instructions: list[Instruction],
+        functional_units: dict
     ):
-        self.fu_status = fu_status
-        self.register_status = reg_status
-        self.instru_status = instru_status
-        self.instru_stages = instru_stages
-        self.clock_cycle = clock_cycle
-    
+        self.__instructions = instructions
+        self.__functional_units = functional_units
+        
+        self.register_status = {}
+        self.instruction_status = []
+        self.instruction_stages = []
+
+        for instru in instructions:
+            if instru.fi is not None:
+                self.register_status[instru.fi] = RegisterStatus()
+            if instru.fj is not None:
+                self.register_status[instru.fj] = RegisterStatus()
+            if instru.fk is not None:
+                self.register_status[instru.fk] = RegisterStatus()
+            
+            self.instruction_status.append(InstructionStatus())
+            self.instruction_stages.append(InstructionStage())
+
+        self.functional_unit_status = {}
+        for name in functional_units.keys():
+            self.functional_unit_status[name] = FunctionalUnitStatus()
+
+        self.clock_cycle = 0
+
+    def copy(self):
+        cp = SystemState(
+            self.__instructions,
+            self.__functional_units
+        )
+
+        for name, status in self.register_status.items():
+            cp.register_status[name] = status.copy()
+
+        for idx in range(len(self.__instructions)):
+            cp.instruction_status[idx] = self.instruction_status[idx].copy()
+            cp.instruction_stages[idx] = self.instruction_stages[idx].copy()
+
+        for name, status in self.functional_unit_status.items():
+            cp.functional_unit_status[name] = status.copy()
+
+        cp.clock_cycle = self.clock_cycle
+
+        return cp
+
     def update_instruction_status(self):
-        for idx, stage in enumerate(self.instru_stages):
+        for idx, stage in enumerate(self.instruction_stages):
             if stage.stage is None or stage.stage is Pipeline.DONE:
                 continue
             if stage.stage is Pipeline.ISSUE:
-                self.instru_status[idx].issue = self.clock_cycle
+                self.instruction_status[idx].issue = self.clock_cycle
             elif stage.stage is Pipeline.READ:
-                self.instru_status[idx].read = self.clock_cycle
+                self.instruction_status[idx].read = self.clock_cycle
             elif stage.stage is Pipeline.EXECUTION:
-                self.instru_status[idx].execution = self.clock_cycle
+                self.instruction_status[idx].execution = self.clock_cycle
             elif stage.stage is Pipeline.WRITE:
-                self.instru_status[idx].write = self.clock_cycle
+                self.instruction_status[idx].write = self.clock_cycle
 
     def show_fu_status(self):
-        for name, fu in self.fu_status.items():
+        for name, fu in self.functional_unit_status.items():
             print(name, fu.__dict__)
 
     def show_register_status(self):
@@ -44,9 +80,9 @@ class SystemState:
             print(name, reg.__dict__)
     
     def show_instru_stages(self):
-        for idx, stage in enumerate(self.instru_stages):
+        for idx, stage in enumerate(self.instruction_stages):
             print(f"I{idx+1}", stage.__dict__)
 
     def show_instru_status(self):
-        for idx, status in enumerate(self.instru_status):
+        for idx, status in enumerate(self.instruction_status):
             print(f"I{idx+1}", status.__dict__)
