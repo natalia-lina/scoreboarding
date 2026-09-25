@@ -29,21 +29,17 @@ if __name__ == "__main__":
     fus=load_configurations(CONFIGURATIONS)
     instru=load_instructions(INSTRUCTIONS)
 
-    register_status, instru_status, instru_stage = instantiate_registers_instructions_status(instru)
+    register_status, instru_status, instru_stages = instantiate_registers_instructions_status(instru)
     fu_status = instantitate_functional_unit_status(fus)
 
-    current_state = SystemState(
-        fu_status, register_status, instru_status, instru_stage, clock_cycle=0
-    )
+    current_state = SystemState(instru, fus)
+    future_state = current_state.copy()
 
     clock_cycle = 0
-    future_state = current_state
-    while clock_cycle<19:
-        
-        future_state.clock_cycle = clock_cycle+1
-        done_count=0
-        for idx, instru_stage in enumerate(current_state.instru_stages):
-            print(idx, clock_cycle)
+    future_state.clock_cycle = 1
+
+    while clock_cycle<10:
+        for idx, instru_stage in enumerate(current_state.instruction_stages):
             if instru_stage.stage is None or (instru_stage.stage is Pipeline.ISSUE and instru_stage.wait):
                 future_state = issue(
                     current_state,
@@ -65,14 +61,15 @@ if __name__ == "__main__":
             elif instru_stage.stage is Pipeline.EXECUTION or (instru_stage.stage is Pipeline.WRITE and instru_stage.wait):
                 future_state = write(current_state, future_state, instru[idx], idx)
             elif instru_stage.stage is Pipeline.WRITE and not instru_stage.wait:
-                future_state.instru_stages[idx].stage = Pipeline.DONE
-
-            
+                future_state.instruction_stages[idx].stage = Pipeline.DONE
 
         clock_cycle += 1
-        current_state = future_state
 
-        current_state.update_instruction_status()
+
+        future_state.update_instruction_status()
+        current_state = future_state.copy()
+        future_state.clock_cycle+= 1
+
 
         print("\n#############",clock_cycle, "#############\n")
         current_state.show_fu_status()
@@ -82,11 +79,7 @@ if __name__ == "__main__":
         current_state.show_instru_stages()
         print("\n")
         current_state.show_instru_status()
-        print("\n")
+        print("\n##########################\n")
 
-
-    
-        
-            
 
 
