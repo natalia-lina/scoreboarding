@@ -24,34 +24,34 @@ def issue(
     instruction: Instruction,
     idx: int # instruction index
 ):
-    future_state.instru_stages[idx].stage = Pipeline.ISSUE
+    future_state.instruction_stages[idx].stage = Pipeline.ISSUE
     
     if current_state.register_status[instruction.fi].fu is not None:
-        future_state.instru_stages[idx].wait = True
+        future_state.instruction_stages[idx].wait = True
         return future_state
     
     for name, fu in functional_units.items():
-        if fu.kind == MAPPING[instruction.op] and not current_state.fu_status[name].busy:
-            future_state.fu_status[name].busy = True
-            future_state.fu_status[name].op = instruction.op
-            future_state.fu_status[name].fi = instruction.fi
-            future_state.fu_status[name].fj = instruction.fj
-            future_state.fu_status[name].fk = instruction.fk
+        if fu.kind == MAPPING[instruction.op] and not current_state.functional_unit_status[name].busy:
+            future_state.functional_unit_status[name].busy = True
+            future_state.functional_unit_status[name].op = instruction.op
+            future_state.functional_unit_status[name].fi = instruction.fi
+            future_state.functional_unit_status[name].fj = instruction.fj
+            future_state.functional_unit_status[name].fk = instruction.fk
 
-            future_state.fu_status[name].qj = current_state.register_status[instruction.fj].fu
+            future_state.functional_unit_status[name].qj = current_state.register_status[instruction.fj].fu
 
             if instruction.fk is not None:
-                future_state.fu_status[name].qk = current_state.register_status[instruction.fk].fu
+                future_state.functional_unit_status[name].qk = current_state.register_status[instruction.fk].fu
 
-            future_state.fu_status[name].rj = future_state.fu_status[name].qj is None
-            future_state.fu_status[name].rk = future_state.fu_status[name].qk is None
+            future_state.functional_unit_status[name].rj = future_state.functional_unit_status[name].qj is None
+            future_state.functional_unit_status[name].rk = future_state.functional_unit_status[name].qk is None
 
             future_state.register_status[instruction.fi].fu = name
 
-            future_state.instru_stages[idx].wait = False
+            future_state.instruction_stages[idx].wait = False
             return future_state
 
-    future_state.instru_stages[idx].wait = True
+    future_state.instruction_stages[idx].wait = True
     return future_state
 
 def read(
@@ -60,15 +60,15 @@ def read(
     instruction: Instruction,
     idx: int # instruction index
 ):
-    future_state.instru_stages[idx].stage = Pipeline.READ
+    future_state.instruction_stages[idx].stage = Pipeline.READ
     fu_name = current_state.register_status[instruction.fi].fu
-    if current_state.fu_status[fu_name].rj and current_state.fu_status[fu_name].rk:
-        future_state.fu_status[fu_name].rj = False
-        future_state.fu_status[fu_name].rk = False
-        future_state.instru_stages[idx].wait = False
+    if current_state.functional_unit_status[fu_name].rj and current_state.functional_unit_status[fu_name].rk:
+        future_state.functional_unit_status[fu_name].rj = False
+        future_state.functional_unit_status[fu_name].rk = False
+        future_state.instruction_stages[idx].wait = False
         return future_state
     
-    future_state.instru_stages[idx].wait = True
+    future_state.instruction_stages[idx].wait = True
         
         
     return future_state
@@ -80,60 +80,62 @@ def execution(
     functional_units: dict,
     idx
 ):
-    future_state.instru_stages[idx].stage = Pipeline.EXECUTION
+    future_state.instruction_stages[idx].stage = Pipeline.EXECUTION
     fu_name = current_state.register_status[instruction.fi].fu
 
-    if current_state.instru_status[idx].read is None:
-        future_state.instru_stages[idx].wait = True
+    if current_state.instruction_status[idx].read is None:
+        future_state.instruction_stages[idx].wait = True
         return future_state
-    elif functional_units[fu_name].latency-1 > current_state.clock_cycle-current_state.instru_status[idx].read:
-        future_state.instru_stages[idx].wait = True
+    elif functional_units[fu_name].latency-1 > current_state.clock_cycle-current_state.instruction_status[idx].read:
+        future_state.instruction_stages[idx].wait = True
         return future_state
     
-    future_state.instru_stages[idx].wait = False
+    future_state.instruction_stages[idx].wait = False
     return future_state
 
 def write(current_state, future_state, instruction, idx):
-    future_state.instru_stages[idx].stage = Pipeline.WRITE
+    future_state.instruction_stages[idx].stage = Pipeline.WRITE
     fu_name = current_state.register_status[instruction.fi].fu
-    # if fu_name == "int2":
-    #     print("1 #########", current_state.show_fu_status())
-    for name, status in current_state.fu_status.items():
+    for name, status in current_state.functional_unit_status.items():
         if name != fu_name and status.busy:
-            if (status.fj == current_state.fu_status[fu_name].fi and status.rj):
-                future_state.instru_stages[idx].wait = True
+            if (status.fj == current_state.functional_unit_status[fu_name].fi and status.rj):
+                future_state.instruction_stages[idx].wait = True
                 return future_state
-            if (status.fk == current_state.fu_status[fu_name].fi and status.rk):
-                future_state.instru_stages[idx].wait = True
+            if (status.fk == current_state.functional_unit_status[fu_name].fi and status.rk):
+                future_state.instruction_stages[idx].wait = True
                 return future_state
-    # if fu_name == "int2":
-    #     print("2 #########")
-    #     current_state.show_fu_status()
-    
-    for name, status in current_state.fu_status.items():
+    if fu_name == "int2":
+        print("1 #########")
+        for name, fu in current_state.functional_unit_status.items():
+            print(name, fu is future_state.functional_unit_status[name])
+        # print(current_state.register_status is future_state.register_status)
+        # current_state.show_fu_status()
+        # current_state.show_register_status()
+        # future_state.show_register_status() 
+    for name, status in current_state.functional_unit_status.items():
 
         if status.qj == fu_name:
-            future_state.fu_status[name].qj = None
-            future_state.fu_status[name].rj = True
+            future_state.functional_unit_status[name].qj = None
+            future_state.functional_unit_status[name].rj = True
 
         if status.qk == fu_name:
-            future_state.fu_status[name].qk = None
-            future_state.fu_status[name].rk = True
+            future_state.functional_unit_status[name].qk = None
+            future_state.functional_unit_status[name].rk = True
     # if fu_name == "int2":
-    #     print("3 #########")
-    #     current_state.show_fu_status()
-    #     current_state.show_register_status()
-    #     future_state.show_register_status()
+    #     print("2 #########")
+        # current_state.show_fu_status()
+        # current_state.show_register_status()
+        # future_state.show_register_status()
 
-    if current_state.register_status[current_state.fu_status[fu_name].fi].fu == fu_name:
-        # print(idx,current_state.fu_status[fu_name].fi)
-        future_state.register_status[current_state.fu_status[fu_name].fi].fu = None
+    if current_state.register_status[current_state.functional_unit_status[fu_name].fi].fu == fu_name:
+        # print(idx,current_state.functional_unit_status[fu_name].fi)
+        future_state.register_status[current_state.functional_unit_status[fu_name].fi].fu = None
         current_state.show_register_status()
 
 
 
-    future_state.fu_status[fu_name] = FunctionalUnitStatus()
-    future_state.instru_stages[idx].wait = False
+    future_state.functional_unit_status[fu_name] = FunctionalUnitStatus()
+    future_state.instruction_stages[idx].wait = False
 
 
     return future_state
