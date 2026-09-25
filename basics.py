@@ -10,6 +10,7 @@ MAPPING = {
 }
 
 
+
 class FunctionalUnitStatus:
     def __init__(self):
 
@@ -23,11 +24,24 @@ class FunctionalUnitStatus:
         self.rj = None
         self.rk = None
 
+    def copy(self):
+        cp = FunctionalUnitStatus()
+        cp.busy = self.busy
+        cp.op = self.op
+        cp.fi = self.fi
+        cp.fj = self.fj
+        cp.fk = self.fk
+        cp.qj = self.qj
+        cp.qk = self.qk
+        cp.rj = self.rj
+        cp.rk = self.rk
+        return cp
+        
+
 class FunctionalUnit:
     def __init__(self, kind, latency):
         self.kind = kind
         self.latency = latency
-        self.status = FunctionalUnitStatus()
 
 
 class InstructionStatus:
@@ -36,6 +50,15 @@ class InstructionStatus:
         self.read = None
         self.execution = None
         self.write = None
+
+    def copy(self):
+        cp = InstructionStatus()
+        cp.issue = self.issue
+        cp.read = self.read
+        cp.execution = self.execution
+        cp.write = self.write
+        return cp
+
 
 class Instruction:
     def __init__(self, op, fi, fj, fk):
@@ -67,13 +90,17 @@ class InstructionStage:
         self.stage = None
         self.wait = False
 
+    def copy(self):
+        cp = InstructionStage()
+        cp.stage = self.stage 
+        cp.wait = self.wait
+        return cp
+
 class RegisterStatus:
     def __init__(self):
         self.fu = None
 
-
-class Scoreboarding:
-    def __init__(self, instructions, functional_units, registers):
-        self.instructions = instructions
-        self.functional_units = functional_units
-        self.registers = registers
+    def copy(self):
+        cp = RegisterStatus()
+        cp.fu = self.fu
+        return cp
