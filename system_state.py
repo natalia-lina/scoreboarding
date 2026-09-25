@@ -39,7 +39,7 @@ class SystemState:
         for name, fu in self.fu_status.items():
             print(name, fu.__dict__)
 
-    def show_reg_status(self):
+    def show_register_status(self):
         for name, reg in self.register_status.items():
             print(name, reg.__dict__)
     

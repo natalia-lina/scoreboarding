@@ -77,7 +77,7 @@ if __name__ == "__main__":
         print("\n#############",clock_cycle, "#############\n")
         current_state.show_fu_status()
         print("\n")
-        current_state.show_reg_status()
+        current_state.show_register_status()
         print("\n")
         current_state.show_instru_stages()
         print("\n")
