@@ -1,3 +1,4 @@
+from types import MappingProxyType
 from re import split
 from basics import (
     Instruction, FunctionalUnit,
@@ -7,7 +8,7 @@ from basics import (
 def load_inputs(
     instruction_file_path: str,
     configuration_file_path: str
-):
+) -> tuple[tuple[Instruction], MappingProxyType[FunctionalUnit]]:
 
     with open(instruction_file_path, "r") as f:
         instructions_input = f.read().splitlines()
@@ -28,7 +29,7 @@ def parse_instructions(instructions_input: list[str]) -> list[Instruction]:
         components = split(r"\s+", line.replace(",", ""))
         instructions.append(Instruction(components))
 
-    return instructions
+    return tuple(instructions)
 
 
 def parse_configurations(configurations_input: list[str]) -> dict:
@@ -45,4 +46,4 @@ def parse_configurations(configurations_input: list[str]) -> dict:
         for idx in range(num):
             functional_units[f"{kind}{idx+1}"] = fu
     
-    return functional_units
+    return MappingProxyType(functional_units)
