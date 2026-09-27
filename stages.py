@@ -1,9 +1,10 @@
+from enum import Enum
 from basics import (
     Instruction,
     InstructionStage,
     FunctionalUnitStatus,
     RegisterStatus,
-    Pipeline
+    Stage
 )
 
 from system_state import SystemState
@@ -24,7 +25,7 @@ def issue(
     instruction: Instruction,
     idx: int # instruction index
 ):
-    future_state.instruction_stages[idx].stage = Pipeline.ISSUE
+    future_state.instruction_stages[idx].stage = Stage.ISSUE
     
     if current_state.register_status[instruction.fi].qi is not None:
         future_state.instruction_stages[idx].wait = True
@@ -60,7 +61,7 @@ def read(
     instruction: Instruction,
     idx: int # instruction index
 ):
-    future_state.instruction_stages[idx].stage = Pipeline.READ
+    future_state.instruction_stages[idx].stage = Stage.READ
     fu_name = current_state.register_status[instruction.fi].qi
     if current_state.functional_unit_status[fu_name].rj and current_state.functional_unit_status[fu_name].rk:
         future_state.functional_unit_status[fu_name].rj = False
@@ -80,7 +81,7 @@ def execution(
     functional_units: dict,
     idx
 ):
-    future_state.instruction_stages[idx].stage = Pipeline.EXECUTION
+    future_state.instruction_stages[idx].stage = Stage.EXECUTION
     fu_name = current_state.register_status[instruction.fi].qi
 
     if current_state.instruction_status[idx].read is None:
@@ -94,7 +95,7 @@ def execution(
     return future_state
 
 def write(current_state, future_state, instruction, idx):
-    future_state.instruction_stages[idx].stage = Pipeline.WRITE
+    future_state.instruction_stages[idx].stage = Stage.WRITE
     fu_name = current_state.register_status[instruction.fi].qi
     for name, status in current_state.functional_unit_status.items():
         if name != fu_name and status.busy:

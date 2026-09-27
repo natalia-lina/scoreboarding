@@ -9,6 +9,12 @@ MAPPING = {
     "fdiv": "div"
 }
 
+class Stage(Enum):
+    ISSUE = 1
+    READ = 2
+    EXECUTION = 3
+    WRITE = 4
+    DONE = 5
 
 
 class FunctionalUnitStatus:
@@ -81,14 +87,6 @@ class Instruction:
 
     def __parse_register(self, reg: str):
         return reg.split("(")[-1].replace(")", "")
-
-
-class Pipeline(Enum):
-    ISSUE = 1
-    READ = 2
-    EXECUTION = 3
-    WRITE = 4
-    DONE = 5
 
 
 class InstructionStage:

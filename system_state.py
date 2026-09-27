@@ -3,8 +3,8 @@ from basics import (
     RegisterStatus,
     InstructionStage,
     InstructionStatus,
-    Pipeline,
-    Instruction
+    Instruction,
+    Stage
 )
 
 
@@ -60,15 +60,15 @@ class SystemState:
 
     def update_instruction_status(self):
         for idx, stage in enumerate(self.instruction_stages):
-            if stage.stage is None or stage.stage is Pipeline.DONE:
+            if stage.stage is None or stage.stage is Stage.DONE:
                 continue
-            if stage.stage is Pipeline.ISSUE:
+            if stage.stage is Stage.ISSUE:
                 self.instruction_status[idx].issue = self.clock_cycle
-            elif stage.stage is Pipeline.READ:
+            elif stage.stage is Stage.READ:
                 self.instruction_status[idx].read = self.clock_cycle
-            elif stage.stage is Pipeline.EXECUTION:
+            elif stage.stage is Stage.EXECUTION:
                 self.instruction_status[idx].execution = self.clock_cycle
-            elif stage.stage is Pipeline.WRITE:
+            elif stage.stage is Stage.WRITE:
                 self.instruction_status[idx].write = self.clock_cycle
 
     def finished(self):

@@ -2,7 +2,7 @@ from types import MappingProxyType
 from re import split
 from basics import (
     Instruction, FunctionalUnit,
-    RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline, InstructionStage
+    RegisterStatus, FunctionalUnitStatus, InstructionStatus, InstructionStage
 )
 
 def load_inputs(
