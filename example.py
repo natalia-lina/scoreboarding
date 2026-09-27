@@ -1,11 +1,18 @@
+from argparse import ArgumentParser
 from utils import load_inputs
 from system_state import SystemState
 from basics import Stage
 from stages import issue, read, execution, write
 
+parser = ArgumentParser()
+parser.add_argument("-p", "--program", required=True, help="Path to RISC-V assembly instructions file")
+parser.add_argument("-c", "--configuration", required=True, help="Path to function unities configuration file")
+
 if __name__ == "__main__":
 
-    current_state = SystemState(*load_inputs("ex2.s", "config1"))
+    args = parser.parse_args()
+
+    current_state = SystemState(*load_inputs(args.program, args.configuration))
     future_state = current_state.copy()
 
     clock_cycle = 0
