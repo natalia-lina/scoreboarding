@@ -7,7 +7,6 @@ from utils import load_inputs
 from system_state import SystemState
 from stages import issue, read, execution, write
 
-
 if __name__ == "__main__":
 
     instru, fus = load_inputs("ex2.s", "config1")
@@ -18,9 +17,8 @@ if __name__ == "__main__":
     clock_cycle = 0
     future_state.clock_cycle = 1
 
-    done_count = 0
-    while done_count<len(instru):
-        done_count = 0
+    while not current_state.finished():
+
         for idx, instru_stage in enumerate(current_state.instruction_stages):
             if instru_stage.stage is None or (instru_stage.stage is Pipeline.ISSUE and instru_stage.wait):
                 future_state = issue(
@@ -63,9 +61,7 @@ if __name__ == "__main__":
         current_state.show_instru_status()
         print("\n##########################\n")
 
-        for stage in current_state.instruction_stages:
-            if stage.stage is Pipeline.DONE:
-                done_count+=1
+
 
 
 

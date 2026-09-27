@@ -71,6 +71,28 @@ class SystemState:
             elif stage.stage is Pipeline.WRITE:
                 self.instruction_status[idx].write = self.clock_cycle
 
+    def finished(self):
+        if self.clock_cycle < 4:
+            return False
+
+        for status in self.functional_unit_status.values():
+            if status.busy:
+                return False
+
+        for status in self.register_status.values():
+            if status.fu is not None:
+                return False
+
+        for status in self.instruction_status:
+            if status.write is None:
+                return False
+            if status.write <= self.clock_cycle:
+                continue
+            else:
+                return False
+        
+        return True
+
     def show_fu_status(self):
         for name, fu in self.functional_unit_status.items():
             print(name, fu.__dict__)
