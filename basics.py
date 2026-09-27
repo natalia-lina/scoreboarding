@@ -72,15 +72,6 @@ class Instruction:
             return reg
         return reg.split("(")[-1].replace(")", "")
 
-class Load(Instruction):
-    def __init__(self, fi, fj):
-        super().__init__("fld", fi, fj, None)
-
-
-class Store(Instruction):
-    def __init__(self, fi, fj):
-        super().__init__("fsd", fi, fj,  None)
-
 
 class Pipeline(Enum):
     ISSUE = 1

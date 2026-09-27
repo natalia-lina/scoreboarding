@@ -29,10 +29,10 @@ def parse_instructions(instructions_input: list[str]) -> list[Instruction]:
         op = components[0]
 
         if op == "fld":
-            instructions.append(Load(*components[1:]))
+            instructions.append(Instruction(*components, None))
         
         elif op == "fsd":
-            instructions.append(Store(*reversed(components[1:])))
+            instructions.append(Instruction(op, components[-1], components[-2], None))
         
         else:
             instructions.append(Instruction(*components))
