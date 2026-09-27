@@ -1,4 +1,4 @@
-from basics import (
+from structures import (
     MAPPING,
     FunctionalUnitStatus,
     Stage

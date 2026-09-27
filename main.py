@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
-from utils import load_inputs
+from parser import load_inputs
 from system_state import SystemState
-from basics import Stage
+from structures import Stage
 from stages import issue, read, execution, write
 
 parser = ArgumentParser()

@@ -1,6 +1,6 @@
 from types import MappingProxyType
 from re import split
-from basics import Instruction, FunctionalUnit
+from structures import Instruction, FunctionalUnit
 
 def load_inputs(
     instruction_file_path: str,

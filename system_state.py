@@ -1,6 +1,4 @@
-
-
-from basics import (
+from structures import (
     FunctionalUnitStatus,
     RegisterStatus,
     InstructionStage,
