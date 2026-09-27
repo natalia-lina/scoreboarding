@@ -10,23 +10,21 @@ def load_inputs(
 ):
 
     with open(instruction_file_path, "r") as f:
-        instructions = f.read().splitlines()
+        instructions_input = f.read().splitlines()
 
     with open(configuration_file_path, "r") as f:
-        configurations = f.read().splitlines()
+        configurations_input = f.read().splitlines()
 
-    
-    
+    return (
+        parse_instructions(instructions_input),
+        parse_configurations(configurations_input)
+    )
 
-def load_instructions(file_path: str) -> list[Instruction]:
-    with open(file_path, "r") as f:
-        instructions_input = f.read()
-
-    lines = instructions_input.splitlines()
+def parse_instructions(instructions_input: list[str]) -> list[Instruction]:
 
     instructions = []
 
-    for line in lines:
+    for line in instructions_input:
         components = split(r"\s+", line.replace(",", ""))
         op = components[0]
 
@@ -42,14 +40,10 @@ def load_instructions(file_path: str) -> list[Instruction]:
     return instructions
 
 
-def load_configurations(file_path: str) -> dict:
-    with open(file_path, "r") as f:
-        configurations_input = f.read()
-
-    lines = configurations_input.splitlines()
+def parse_configurations(configurations_input: list[str]) -> dict:
 
     functional_units = {}
-    for line in lines:
+    for line in configurations_input:
         components = split(r"\s+", line)
         kind = components[0]
         num = int(components[1])

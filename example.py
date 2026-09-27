@@ -3,18 +3,14 @@ from basics import (
     RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline
 )
 
-from utils import (
-    load_instructions,
-    load_configurations
-)
+from utils import load_inputs
 from system_state import SystemState
 from stages import issue, read, execution, write
 
 
 if __name__ == "__main__":
 
-    fus=load_configurations("config1")
-    instru=load_instructions("ex2.s")
+    instru, fus = load_inputs("ex2.s", "config1")
 
     current_state = SystemState(instru, fus)
     future_state = current_state.copy()
