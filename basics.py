@@ -63,9 +63,14 @@ class InstructionStatus:
 class Instruction:
     def __init__(self, op, fi, fj, fk):
         self.op = op
-        self.fi = fi
-        self.fj = fj
-        self.fk = fk
+        self.fi = self.__parse_register(fi)
+        self.fj = self.__parse_register(fj)
+        self.fk = self.__parse_register(fk)
+
+    def __parse_register(self, reg: str):
+        if reg is None:
+            return reg
+        return reg.split("(")[-1].replace(")", "")
 
 class Load(Instruction):
     def __init__(self, fi, fj):
