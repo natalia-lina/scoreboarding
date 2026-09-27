@@ -1,6 +1,5 @@
 from basics import (
     MAPPING,
-    Instruction,
     FunctionalUnitStatus,
     Stage
 )
@@ -87,14 +86,7 @@ def write(current_state, future_state, idx):
             if (status.fk == current_state.functional_unit_status[fu_name].fi and status.rk):
                 future_state.instruction_stages[idx].wait = True
                 return future_state
-    if fu_name == "int2":
-        print("1 #########")
-        for name, fu in current_state.functional_unit_status.items():
-            print(name, fu is future_state.functional_unit_status[name])
-        # print(current_state.register_status is future_state.register_status)
-        # current_state.show_fu_status()
-        # current_state.show_register_status()
-        # future_state.show_register_status() 
+
     for name, status in current_state.functional_unit_status.items():
 
         if status.qj == fu_name:
@@ -104,21 +96,12 @@ def write(current_state, future_state, idx):
         if status.qk == fu_name:
             future_state.functional_unit_status[name].qk = None
             future_state.functional_unit_status[name].rk = True
-    # if fu_name == "int2":
-    #     print("2 #########")
-        # current_state.show_fu_status()
-        # current_state.show_register_status()
-        # future_state.show_register_status()
 
     if current_state.register_status[current_state.functional_unit_status[fu_name].fi].qi == fu_name:
-        # print(idx,current_state.functional_unit_status[fu_name].fi)
         future_state.register_status[current_state.functional_unit_status[fu_name].fi].qi = None
         current_state.show_register_status()
 
-
-
     future_state.functional_unit_status[fu_name] = FunctionalUnitStatus()
     future_state.instruction_stages[idx].wait = False
-
 
     return future_state
