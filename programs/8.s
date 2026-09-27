@@ -1,0 +1,5 @@
+fld f1, 0(x1)
+fld f2, 0(x2)
+fld f3, 0(x3)
+fld f4, 0(x4)
+fld f5, 0(x5)

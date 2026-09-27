@@ -1,0 +1,4 @@
+int 6 2
+mul 1 6
+add 4 1
+div 1 15
