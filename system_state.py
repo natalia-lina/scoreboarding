@@ -1,3 +1,5 @@
+
+
 from basics import (
     FunctionalUnitStatus,
     RegisterStatus,
@@ -38,6 +40,14 @@ class SystemState:
 
         self.clock_cycle = 0
 
+    @property
+    def instructions(self):
+        return self.__instructions
+
+    @property
+    def functional_units(self):
+        return self.__functional_units
+    
     def copy(self):
         cp = SystemState(
             self.__instructions,

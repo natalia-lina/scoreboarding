@@ -5,9 +5,7 @@ from stages import issue, read, execution, write
 
 if __name__ == "__main__":
 
-    instru, fus = load_inputs("ex2.s", "config1")
-
-    current_state = SystemState(instru, fus)
+    current_state = SystemState(*load_inputs("ex2.s", "config1"))
     future_state = current_state.copy()
 
     clock_cycle = 0
@@ -20,8 +18,6 @@ if __name__ == "__main__":
                 future_state = issue(
                     current_state,
                     future_state,
-                    fus,
-                    instru[idx],
                     idx
                 )
                 break
@@ -29,13 +25,12 @@ if __name__ == "__main__":
                 future_state = read(
                     current_state,
                     future_state,
-                    instru[idx],
                     idx
                 )
             elif instru_stage.stage is Stage.READ or (instru_stage.stage is Stage.EXECUTION and instru_stage.wait):
-                future_state = execution(current_state, future_state, instru[idx], fus, idx)
+                future_state = execution(current_state, future_state, idx)
             elif instru_stage.stage is Stage.EXECUTION or (instru_stage.stage is Stage.WRITE and instru_stage.wait):
-                future_state = write(current_state, future_state, instru[idx], idx)
+                future_state = write(current_state, future_state, idx)
             elif instru_stage.stage is Stage.WRITE and not instru_stage.wait:
                 future_state.instruction_stages[idx].stage = Stage.DONE
 
