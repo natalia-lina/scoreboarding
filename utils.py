@@ -4,7 +4,10 @@ from basics import (
     RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline, InstructionStage
 )
 
-def load_instructions(instructions_input: str) -> list[Instruction]:
+def load_instructions(file_path: str) -> list[Instruction]:
+    with open(file_path, "r") as f:
+        instructions_input = f.read()
+
     lines = instructions_input.splitlines()
 
     instructions = []
@@ -25,7 +28,10 @@ def load_instructions(instructions_input: str) -> list[Instruction]:
     return instructions
 
 
-def load_configurations(configurations_input: str) -> dict:
+def load_configurations(file_path: str) -> dict:
+    with open(file_path, "r") as f:
+        configurations_input = f.read()
+
     lines = configurations_input.splitlines()
 
     functional_units = {}
