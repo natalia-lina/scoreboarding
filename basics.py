@@ -104,9 +104,9 @@ class InstructionStage:
 
 class RegisterStatus:
     def __init__(self):
-        self.fu = None
+        self.qi = None
 
     def copy(self):
         cp = RegisterStatus()
-        cp.fu = self.fu
+        cp.qi = self.qi
         return cp

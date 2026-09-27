@@ -26,7 +26,7 @@ def issue(
 ):
     future_state.instruction_stages[idx].stage = Pipeline.ISSUE
     
-    if current_state.register_status[instruction.fi].fu is not None:
+    if current_state.register_status[instruction.fi].qi is not None:
         future_state.instruction_stages[idx].wait = True
         return future_state
     
@@ -38,15 +38,15 @@ def issue(
             future_state.functional_unit_status[name].fj = instruction.fj
             future_state.functional_unit_status[name].fk = instruction.fk
 
-            future_state.functional_unit_status[name].qj = current_state.register_status[instruction.fj].fu
+            future_state.functional_unit_status[name].qj = current_state.register_status[instruction.fj].qi
 
             if instruction.fk is not None:
-                future_state.functional_unit_status[name].qk = current_state.register_status[instruction.fk].fu
+                future_state.functional_unit_status[name].qk = current_state.register_status[instruction.fk].qi
 
             future_state.functional_unit_status[name].rj = future_state.functional_unit_status[name].qj is None
             future_state.functional_unit_status[name].rk = future_state.functional_unit_status[name].qk is None
 
-            future_state.register_status[instruction.fi].fu = name
+            future_state.register_status[instruction.fi].qi = name
 
             future_state.instruction_stages[idx].wait = False
             return future_state
@@ -61,7 +61,7 @@ def read(
     idx: int # instruction index
 ):
     future_state.instruction_stages[idx].stage = Pipeline.READ
-    fu_name = current_state.register_status[instruction.fi].fu
+    fu_name = current_state.register_status[instruction.fi].qi
     if current_state.functional_unit_status[fu_name].rj and current_state.functional_unit_status[fu_name].rk:
         future_state.functional_unit_status[fu_name].rj = False
         future_state.functional_unit_status[fu_name].rk = False
@@ -81,7 +81,7 @@ def execution(
     idx
 ):
     future_state.instruction_stages[idx].stage = Pipeline.EXECUTION
-    fu_name = current_state.register_status[instruction.fi].fu
+    fu_name = current_state.register_status[instruction.fi].qi
 
     if current_state.instruction_status[idx].read is None:
         future_state.instruction_stages[idx].wait = True
@@ -95,7 +95,7 @@ def execution(
 
 def write(current_state, future_state, instruction, idx):
     future_state.instruction_stages[idx].stage = Pipeline.WRITE
-    fu_name = current_state.register_status[instruction.fi].fu
+    fu_name = current_state.register_status[instruction.fi].qi
     for name, status in current_state.functional_unit_status.items():
         if name != fu_name and status.busy:
             if (status.fj == current_state.functional_unit_status[fu_name].fi and status.rj):
@@ -127,9 +127,9 @@ def write(current_state, future_state, instruction, idx):
         # current_state.show_register_status()
         # future_state.show_register_status()
 
-    if current_state.register_status[current_state.functional_unit_status[fu_name].fi].fu == fu_name:
+    if current_state.register_status[current_state.functional_unit_status[fu_name].fi].qi == fu_name:
         # print(idx,current_state.functional_unit_status[fu_name].fi)
-        future_state.register_status[current_state.functional_unit_status[fu_name].fi].fu = None
+        future_state.register_status[current_state.functional_unit_status[fu_name].fi].qi = None
         current_state.show_register_status()
 
 

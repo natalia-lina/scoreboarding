@@ -80,7 +80,7 @@ class SystemState:
                 return False
 
         for status in self.register_status.values():
-            if status.fu is not None:
+            if status.qi is not None:
                 return False
 
         for status in self.instruction_status:
