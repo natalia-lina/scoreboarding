@@ -105,7 +105,6 @@ def write(current_state, future_state, idx):
 
     if current_state.register_status[current_state.functional_unit_status[fu_name].fi].qi == fu_name:
         future_state.register_status[current_state.functional_unit_status[fu_name].fi].qi = None
-        current_state.show_register_status()
 
     future_state.functional_unit_status[fu_name] = FunctionalUnitStatus()
     future_state.instruction_stages[idx].wait = False
