@@ -1,3 +1,4 @@
+from re import split
 from basics import (
     Instruction, Load, Store, FunctionalUnit,
     RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline, InstructionStage
@@ -9,7 +10,7 @@ def load_instructions(instructions_input: str) -> list[Instruction]:
     instructions = []
 
     for line in lines:
-        components = line.replace(",", "").split(" ")
+        components = split(r"\s+", line.replace(",", ""))
         op = components[0]
 
         if op == "fld":
@@ -29,7 +30,7 @@ def load_configurations(configurations_input: str) -> dict:
 
     functional_units = {}
     for line in lines:
-        components = line.split(" ")
+        components = split(r"\s+", line)
         kind = components[0]
         num = int(components[1])
         lat = int(components[2])
