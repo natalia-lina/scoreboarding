@@ -43,15 +43,12 @@ if __name__ == "__main__":
 
         if args.verbose:
 
-            print("\n#############",clock_cycle, "#############\n")
+            print(f"\n\n\n############# {clock_cycle=} #############\n\n")
             current_state.show_fu_status()
             print("\n")
             current_state.show_register_status()
             print("\n")
-            current_state.show_instru_stages()
-            print("\n")
             current_state.show_instru_status()
-            print("\n##########################\n")
 
     if not args.verbose:
         current_state.show_instru_status()
