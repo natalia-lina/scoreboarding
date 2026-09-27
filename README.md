@@ -13,8 +13,11 @@ Para visualizar os estados das tabelas *Functional Unit Status*, *Register Statu
 python main.py -p <program-file-path> -o <configuration-file-path> --verbose
 ```
 
-Para executar o simulador para todas as combinações entre arquivo de configuração e arquivo de instrução:
+Para executar o simulador para todas as combinações entre arquivo de configuração e arquivo de instrução, respectivamente, nos diretórios `./configurations/` e `./programs/`:
 ```bash
 bash run.sh
 ```
-Estou considerando que todos os arquivos de configuração são `.txt` e os *outputs* gerados também são `.txt`.
+Estou considerando que todos os arquivos de configuração são `.txt`. Os *outputs* gerados são salvos na pasta `./outputs/`, com padrão de nome:
+```
+p<program-file-name>_c<configuration-file-name>.txt
+```
