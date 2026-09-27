@@ -61,15 +61,25 @@ class InstructionStatus:
 
 
 class Instruction:
-    def __init__(self, op, fi, fj, fk):
-        self.op = op
-        self.fi = self.__parse_register(fi)
-        self.fj = self.__parse_register(fj)
-        self.fk = self.__parse_register(fk)
+    def __init__(self, components: list[str | None]):
+        self.op = components[0]
+        self.fk = None
+        self.__instantiate_registers(components[1:])
+
+    def __instantiate_registers(self, registers: list[str | None]):
+        if self.op == "fld":
+            self.fi = self.__parse_register(registers[0])
+            self.fj = self.__parse_register(registers[1])
+        elif self.op == "fsd":
+            self.fi = self.__parse_register(registers[1])
+            self.fj = self.__parse_register(registers[0])
+        else:
+            self.fi = self.__parse_register(registers[0])
+            self.fj = self.__parse_register(registers[1])
+            self.fk = self.__parse_register(registers[2])          
+
 
     def __parse_register(self, reg: str):
-        if reg is None:
-            return reg
         return reg.split("(")[-1].replace(")", "")
 
 

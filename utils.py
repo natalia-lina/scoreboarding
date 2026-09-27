@@ -1,6 +1,6 @@
 from re import split
 from basics import (
-    Instruction, Load, Store, FunctionalUnit,
+    Instruction, FunctionalUnit,
     RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline, InstructionStage
 )
 
@@ -26,16 +26,7 @@ def parse_instructions(instructions_input: list[str]) -> list[Instruction]:
 
     for line in instructions_input:
         components = split(r"\s+", line.replace(",", ""))
-        op = components[0]
-
-        if op == "fld":
-            instructions.append(Instruction(*components, None))
-        
-        elif op == "fsd":
-            instructions.append(Instruction(op, components[-1], components[-2], None))
-        
-        else:
-            instructions.append(Instruction(*components))
+        instructions.append(Instruction(components))
 
     return instructions
 
