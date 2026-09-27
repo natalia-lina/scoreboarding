@@ -5,32 +5,16 @@ from basics import (
 
 from utils import (
     load_instructions,
-    load_configurations,
-    instantiate_registers_instructions_status,
-    instantitate_functional_unit_status
+    load_configurations
 )
 from system_state import SystemState
 from stages import issue, read, execution, write
 
-INSTRUCTIONS = """fld f1, 0(x1)
-fsd f5, 0(x1)
-fdiv f2, f4, f5
-"""
-
-CONFIGURATIONS = """int 2 1
-mul 2 4
-add 1 2
-div 1 10
-"""
-
 
 if __name__ == "__main__":
 
-    fus=load_configurations(CONFIGURATIONS)
-    instru=load_instructions(INSTRUCTIONS)
-
-    register_status, instru_status, instru_stages = instantiate_registers_instructions_status(instru)
-    fu_status = instantitate_functional_unit_status(fus)
+    fus=load_configurations("config1")
+    instru=load_instructions("ex2.s")
 
     current_state = SystemState(instru, fus)
     future_state = current_state.copy()

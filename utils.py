@@ -4,6 +4,20 @@ from basics import (
     RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline, InstructionStage
 )
 
+def load_inputs(
+    instruction_file_path: str,
+    configuration_file_path: str
+):
+
+    with open(instruction_file_path, "r") as f:
+        instructions = f.read().splitlines()
+
+    with open(configuration_file_path, "r") as f:
+        configurations = f.read().splitlines()
+
+    
+    
+
 def load_instructions(file_path: str) -> list[Instruction]:
     with open(file_path, "r") as f:
         instructions_input = f.read()
@@ -47,27 +61,3 @@ def load_configurations(file_path: str) -> dict:
             functional_units[f"{kind}{idx+1}"] = fu
     
     return functional_units
-
-def instantiate_registers_instructions_status(instructions: list) -> tuple:
-    register_status = {}
-    instruction_status = []
-    instruction_stage = []
-
-    for instru in instructions:
-        if instru.fi is not None:
-            register_status[instru.fi] = RegisterStatus()
-        if instru.fj is not None:
-            register_status[instru.fj] = RegisterStatus()
-        if instru.fk is not None:
-            register_status[instru.fk] = RegisterStatus()
-        
-        instruction_status.append(InstructionStatus())
-        instruction_stage.append(InstructionStage())
-
-    return register_status, instruction_status, instruction_stage
-
-def instantitate_functional_unit_status(functional_units: dict) -> dict:
-    function_unit_status = {}
-    for name in functional_units.keys():
-        function_unit_status[name] = FunctionalUnitStatus()
-    return function_unit_status
