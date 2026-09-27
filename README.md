@@ -1,9 +1,20 @@
-# scoreboarding
+# Scoreboarding
 
-Natália, você está tendo um problema dentro da função `write`. O objeto `current_state`, que não recebe qualquer atribuição, está todo fodido mudando de valor sozinho, quando apenas `future_stage` deveria ser mudado. Tem cara de eu estar me embanando com a forma que o Python lida com nomes de variaveis e endereços de memoria de fato. O Joao tinha perguntado se eu estava alterando a tabela diretamente ou se estava encapsulado. Acho que era nesse problema que ele estava pensando! 
+Minha tentativa de criar um simulador do algoritmo *Scoreboarding*. Desenvolvido em `Python 3.10`.
 
-Para amanhã, então, bora tentar encapsular essas porra. Eu quero fazer com que o `current_time` seja sempre imutável (read-only).
+## Execução
+Para visualizar o estado final da tabela *Instruction Status*:
+```bash
+python main.py -p <program-file-path> -o <configuration-file-path>
+```
 
-https://www.reddit.com/r/learnpython/comments/1ggr6d5/why_is_the_wrong_variable_updating/
+Para visualizar os estados das tabelas *Functional Unit Status*, *Register Status* e *Instruction Status* em cada ciclo de clock:
+```bash
+python main.py -p <program-file-path> -o <configuration-file-path> --verbose
+```
 
-https://nedbatchelder.com/text/names
+Para executar o simulador para todas as combinações entre arquivo de configuração e arquivo de instrução:
+```bash
+bash run.sh
+```
+Estou considerando que todos os arquivos de configuração são `.txt` e os *outputs* gerados também são `.txt`.
