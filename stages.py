@@ -1,22 +1,11 @@
-from enum import Enum
 from basics import (
+    MAPPING,
     Instruction,
-    InstructionStage,
     FunctionalUnitStatus,
-    RegisterStatus,
     Stage
 )
 
 from system_state import SystemState
-
-MAPPING = {
-    "fld": "int",
-    "fsd": "int",
-    "fadd": "add",
-    "fsub": "add",
-    "fmul": "mul",
-    "fdiv": "div"
-}
 
 def issue(
     current_state: SystemState,
