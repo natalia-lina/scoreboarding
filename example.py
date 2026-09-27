@@ -1,5 +1,5 @@
 from basics import (
-    Instruction, Load, Store, FunctionalUnit,
+    Instruction, FunctionalUnit,
     RegisterStatus, FunctionalUnitStatus, InstructionStatus, Pipeline
 )
 
