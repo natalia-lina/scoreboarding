@@ -1,0 +1,9 @@
+I1 {'issue': 1, 'read': 2, 'execution': 3, 'write': 4}
+I2 {'issue': 5, 'read': 6, 'execution': 10, 'write': 11}
+I3 {'issue': 12, 'read': 13, 'execution': 15, 'write': 16}
+I4 {'issue': 17, 'read': 18, 'execution': 19, 'write': 20}
+I5 {'issue': 21, 'read': 22, 'execution': 32, 'write': 33}
+I6 {'issue': 34, 'read': 35, 'execution': 37, 'write': 38}
+I7 {'issue': 39, 'read': 40, 'execution': 44, 'write': 45}
+I8 {'issue': 46, 'read': 47, 'execution': 49, 'write': 50}
+I9 {'issue': 47, 'read': 51, 'execution': 52, 'write': 53}

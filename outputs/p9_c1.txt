@@ -1,0 +1,6 @@
+I1 {'issue': 1, 'read': 2, 'execution': 3, 'write': 4}
+I2 {'issue': 2, 'read': 5, 'execution': 7, 'write': 8}
+I3 {'issue': 5, 'read': 9, 'execution': 13, 'write': 14}
+I4 {'issue': 9, 'read': 15, 'execution': 17, 'write': 18}
+I5 {'issue': 15, 'read': 19, 'execution': 29, 'write': 30}
+I6 {'issue': 16, 'read': 19, 'execution': 20, 'write': 21}
