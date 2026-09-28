@@ -29,12 +29,16 @@ def issue(
                 future_state.functional_unit_status[name].fk = current_state.instructions[idx].fk
 
                 future_state.functional_unit_status[name].qj = current_state.register_status[current_state.instructions[idx].fj].qi
+                future_state.functional_unit_status[name].rj = future_state.functional_unit_status[name].qj is None
 
                 if current_state.instructions[idx].fk is not None:
                     future_state.functional_unit_status[name].qk = current_state.register_status[current_state.instructions[idx].fk].qi
+                    future_state.functional_unit_status[name].rk = future_state.functional_unit_status[name].qk is None
+                else:
+                    future_state.functional_unit_status[name].qk = None
+                    future_state.functional_unit_status[name].rk = True
 
                 future_state.functional_unit_status[name].rj = future_state.functional_unit_status[name].qj is None
-                future_state.functional_unit_status[name].rk = future_state.functional_unit_status[name].qk is None
 
                 future_state.register_status[current_state.instructions[idx].fi].qi = name
 
