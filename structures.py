@@ -5,7 +5,7 @@ MAPPING = {
     "fsd": "int",
     "fadd": "add",
     "fsub": "add",
-    "fmul": "mul",
+    "fmul": "mult",
     "fdiv": "div"
 }
 

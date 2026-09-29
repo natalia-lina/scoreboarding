@@ -28,13 +28,31 @@ def issue(
                 future_state.functional_unit_status[name].fj = current_state.instructions[idx].fj
                 future_state.functional_unit_status[name].fk = current_state.instructions[idx].fk
 
-                future_state.functional_unit_status[name].qj = current_state.register_status[current_state.instructions[idx].fj].qi
+                produtor_fj = current_state.register_status[current_state.instructions[idx].fj].qi
+
+                if produtor_fj is not None and \
+                current_state.functional_unit_status[produtor_fj].busy and \
+                not future_state.functional_unit_status[produtor_fj].busy:
+                    produtor_fj = None
+
+                future_state.functional_unit_status[name].qj = produtor_fj
+                future_state.functional_unit_status[name].rj = (produtor_fj is None)
 
                 if current_state.instructions[idx].fk is not None:
-                    future_state.functional_unit_status[name].qk = current_state.register_status[current_state.instructions[idx].fk].qi
+                    produtor_fk = current_state.register_status[current_state.instructions[idx].fk].qi
+
+                    if produtor_fk is not None and \
+                    current_state.functional_unit_status[produtor_fk].busy and \
+                    not future_state.functional_unit_status[produtor_fk].busy:
+                        produtor_fk = None
+
+                    future_state.functional_unit_status[name].qk = produtor_fk
+                    future_state.functional_unit_status[name].rk = (produtor_fk is None)
+                else:
+                    future_state.functional_unit_status[name].qk = None
+                    future_state.functional_unit_status[name].rk = True
 
                 future_state.functional_unit_status[name].rj = future_state.functional_unit_status[name].qj is None
-                future_state.functional_unit_status[name].rk = future_state.functional_unit_status[name].qk is None
 
                 future_state.register_status[current_state.instructions[idx].fi].qi = name
 

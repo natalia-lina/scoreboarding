@@ -1,4 +1,4 @@
 int 4 1
-mul 1 8
+mult 1 8
 add 1 1
 div 1 20
